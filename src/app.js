@@ -2,20 +2,57 @@ const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
+const { validateSignupData } = require("./utils/validations");
+const bcrypt = require("bcrypt");
 
 app.use(express.json()); // read the json data object to js object
 
 // save the user data into database
 app.post("/signup", async (req, res) => {
     try {
-        const user = new User(req.body); // create a new instance of user
+        // validate the data
+        validateSignupData(req);
+
+        const { firstName, lastName, emailId, password } = req.body;
+        // Encrypt the password
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        // create a new instance of user
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password : passwordHash
+        });
+
         await user.save();
         res.send("data save successfully");
     } catch(err) {
-        res.status(401).send("Error saving the user" + err.message);
+        res.status(401).send("Error saving the user - " + err.message);
     }
 });
 
+//login
+app.post("/login", async (req,res) => {
+    try{
+        const {emailId, password} = req.body;
+
+        const user = await User.findOne({emailId : emailId});
+        if(!user) {
+            throw new Error("Invalid Creditionals");
+        } 
+
+        const isValidPassword = await bcrypt.compare(password,user.password);
+        if(isValidPassword) {
+            res.send("Login Successful!!");
+        } else {
+            throw new Error("Invalid Creditionals");
+        }
+    } catch(err) {
+        res.status(404).send("ERROR! " + err.message);
+    }
+    
+});
 
 // get the user details by emailId
 app.get("/user" , async (req,res) => {
@@ -72,7 +109,7 @@ app.patch("/updateUserData/:userId", async (req, res) => {
         if(data?.skills.length > 10) {
             throw new Error("skills must be 10");
         }
-        
+
         await User.findByIdAndUpdate({ _id : userId}, data, {runValidators : true});
         res.send("update data successfully");
     } catch(err) {
