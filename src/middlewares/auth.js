@@ -4,7 +4,10 @@ const User = require("../models/user");
 const userAuth = async (req,res,next) => {
     const token = req.cookies?.token;
     
-    const decodeObj = jwt.verify(token, "DEV@TINDER");
+    if(!token) {
+        return res.status(401).send("Unauthorized Access - No Token Provided");
+    }
+    const decodeObj = await jwt.verify(token, "DEV@TINDER");
     const {_id} = decodeObj;
     const user = await User.findById(_id);
     if(!user) {

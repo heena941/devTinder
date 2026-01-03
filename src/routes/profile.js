@@ -3,7 +3,15 @@ const profileRouter = express.Router();
 const { userAuth } = require ("../middlewares/auth");
 const { isValidateUpdateProfile, isValidatePassword } = require("../utils/validations");
 const bcrypt = require("bcrypt");
-
+/**
+ * @swagger
+ * /profile/view:
+ *   get:
+ *     summary: Get all users
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 //get the user profile
 profileRouter.get("/profile/view", userAuth, async (req,res) => {
     try {

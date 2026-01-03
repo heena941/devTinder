@@ -49,7 +49,6 @@ const UserSchema = mongoose.Schema({
     skills : {
         type : [String]
     }
-
 }
 ,
 {
@@ -75,4 +74,5 @@ UserSchema.methods.validatePassword = async function(passwordInputByUser) {
     );
     return isValidPassword;
 }
+
 module.exports = mongoose.model("User", UserSchema);

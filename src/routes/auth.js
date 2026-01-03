@@ -47,7 +47,10 @@ authRouter.post("/login", async (req,res) => {
                 expire: new Date(Date.now() + 86400000),
                 httpOnly : true});
             
-            res.send("Login Successful!!");
+            res.json({
+                message : "Login Successful!!",
+                data:user
+            });
         } else {
             throw new Error("Invalid Creditionals");
         }
@@ -60,7 +63,9 @@ authRouter.post("/login", async (req,res) => {
 //logout
 authRouter.post("/logout", async (req,res) => {
     // clear the cookie
-    res.clearCookie("token");
+    res.cookie("token", null, {
+        expires: new Date(Date.now()),
+    })
     res.send("Logout Successful");
 });
 
